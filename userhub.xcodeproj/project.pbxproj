@@ -27,6 +27,13 @@
 		75DBB1892F3B5C2800E948FF /* userhub.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = userhub.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		75DBB1962F3B5C2900E948FF /* userhubTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = userhubTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		75DBB1A02F3B5C2900E948FF /* userhubUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = userhubUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		75E528782F3C75410044C061 /* login_success.yaml */ = {isa = PBXFileReference; lastKnownFileType = text.yaml; path = login_success.yaml; sourceTree = "<group>"; };
+		75E5287A2F3C755E0044C061 /* login_empty_email.yaml */ = {isa = PBXFileReference; lastKnownFileType = text.yaml; path = login_empty_email.yaml; sourceTree = "<group>"; };
+		75E528832F3C76520044C061 /* user_list.yaml */ = {isa = PBXFileReference; lastKnownFileType = text.yaml; path = user_list.yaml; sourceTree = "<group>"; };
+		75E5289E2F3C76DA0044C061 /* login_wrong.yaml */ = {isa = PBXFileReference; lastKnownFileType = text.yaml; path = login_wrong.yaml; sourceTree = "<group>"; };
+		75E5289F2F3C76FF0044C061 /* login_invalidemail.yaml */ = {isa = PBXFileReference; lastKnownFileType = text.yaml; path = login_invalidemail.yaml; sourceTree = "<group>"; };
+		75E528A02F3C77460044C061 /* config.yaml */ = {isa = PBXFileReference; lastKnownFileType = text.yaml; path = config.yaml; sourceTree = "<group>"; };
+		75E528A12F3C7B500044C061 /* short_password.yaml */ = {isa = PBXFileReference; lastKnownFileType = text.yaml; path = short_password.yaml; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -75,6 +82,7 @@
 		75DBB1802F3B5C2800E948FF = {
 			isa = PBXGroup;
 			children = (
+				75E528772F3C75310044C061 /* .maestro */,
 				75DBB18B2F3B5C2800E948FF /* userhub */,
 				75DBB1992F3B5C2900E948FF /* userhubTests */,
 				75DBB1A32F3B5C2900E948FF /* userhubUITests */,
@@ -90,6 +98,28 @@
 				75DBB1A02F3B5C2900E948FF /* userhubUITests.xctest */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		75E528772F3C75310044C061 /* .maestro */ = {
+			isa = PBXGroup;
+			children = (
+				75E528A02F3C77460044C061 /* config.yaml */,
+				75E528792F3C75540044C061 /* flows */,
+			);
+			path = .maestro;
+			sourceTree = "<group>";
+		};
+		75E528792F3C75540044C061 /* flows */ = {
+			isa = PBXGroup;
+			children = (
+				75E528A12F3C7B500044C061 /* short_password.yaml */,
+				75E5289F2F3C76FF0044C061 /* login_invalidemail.yaml */,
+				75E528832F3C76520044C061 /* user_list.yaml */,
+				75E5287A2F3C755E0044C061 /* login_empty_email.yaml */,
+				75E5289E2F3C76DA0044C061 /* login_wrong.yaml */,
+				75E528782F3C75410044C061 /* login_success.yaml */,
+			);
+			path = flows;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */

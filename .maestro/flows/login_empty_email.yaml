@@ -1,0 +1,7 @@
+appId: tesr.com.userhub
+---
+- launchApp
+- tapOn: "Enter your password"
+- inputText: "password123"
+- tapOn: "Login"
+- assertVisible: "Email cannot be empty"

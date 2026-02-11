@@ -1,0 +1,11 @@
+appId: tesr.com.userhub
+---
+# Başarılı login akışı testi
+- launchApp
+- tapOn: "Enter your email"
+- inputText: "test@example.com"
+- tapOn: "Enter your password"
+- inputText: "123456"
+- tapOn: "Login"
+- assertVisible: "Users"
+- assertVisible: "Leanne Graham"  # İlk kullanıcı

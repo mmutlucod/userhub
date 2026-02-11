@@ -1,0 +1,60 @@
+appId: tesr.com.userhub
+---
+# Kısa şifre ile login testi
+- launchApp
+- tapOn: "Enter your email"
+- inputText: "test@example.com"
+- tapOn: "Enter your password"
+- inputText: "123"
+- tapOn: "Login"
+
+# Hata mesajı
+- assertVisible: "Password must be at least 6 characters"
+
+config.yaml (Maestro Konfigürasyonu)
+yaml# Maestro Configuration
+appId: com.yourdomain.userhub
+
+# Platform ayarları
+platform: ios
+
+# Test ayarları
+env:
+  TEST_USER_EMAIL: "test@example.com"
+  TEST_USER_PASSWORD: "123456"
+
+# Timeout ayarları (milisaniye)
+timeouts:
+  default: 10000
+  element: 5000
+  navigation: 15000
+
+# Test başlamadan önce çalışacak komutlar
+onFlowStart:
+  - clearState  # Önbelleği temizle
+  - clearKeychain  # iOS keychain'i temizle (eğer varsa)
+
+# Test bittikten sonra
+onFlowComplete:
+  - stopApp
+
+# Retry ayarları
+retries:
+  maxRetries: 2
+  delayBetweenRetries: 1000
+
+# Screenshot ayarları
+screenshots:
+  onFailure: true
+  outputPath: "./maestro-screenshots"
+
+# Video kayıt ayarları
+video:
+  enabled: true
+  outputPath: "./maestro-videos"
+
+# Tags (test filtreleme için)
+tags:
+  smoke: ["login_success.yaml"]
+  regression: ["login_success.yaml", "login_empty_email.yaml", "login_invalid_email.yaml"]
+  critical: ["login_success.yaml", "user_list.yaml"]

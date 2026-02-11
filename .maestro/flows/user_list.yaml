@@ -1,0 +1,19 @@
+appId: tesr.com.userhub
+---
+- launchApp
+- tapOn: "Enter your email"
+- inputText: "test@example.com"
+- tapOn: "Enter your password"
+- inputText: "123456"
+- tapOn: "Login"
+
+# Şifre kaydetme popup'ını kapat (varsa)
+- tapOn:
+    text: "Not Now"
+    optional: true
+
+# Kullanıcı listesi yüklendi mi?
+- assertVisible: "Users"
+- scrollUntilVisible:
+    element: "Ervin Howell"
+    direction: DOWN

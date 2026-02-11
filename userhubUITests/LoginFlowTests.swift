@@ -44,12 +44,6 @@ final class LoginFlowTests: XCTestCase {
             print("✅ Şifre kaydetme popup'ı kapatıldı")
         }
         
-        let notNow = app.buttons["Şimdi Değil"]
-        if notNow.waitForExistence(timeout: 3) {
-            notNow.tap()
-            print("✅ Şifre popup'ı kapatıldı")
-        }
-        
         sleep(3)
         
         let usersNavBar = app.navigationBars["Users"]

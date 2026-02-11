@@ -1,0 +1,12 @@
+appId: tesr.com.userhub
+---
+# Yanlış credentials ile login testi
+- launchApp
+- tapOn: "Enter your email"
+- inputText: "wrong@example.com"
+- tapOn: "Enter your password"
+- inputText: "wrongpassword"
+- tapOn: "Login"
+
+# Hata mesajı görünmeli (timeout yok, Maestro otomatik bekler)
+- assertVisible: "Invalid credentials"

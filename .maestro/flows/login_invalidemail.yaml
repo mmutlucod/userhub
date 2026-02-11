@@ -1,0 +1,9 @@
+appId: tesr.com.userhub
+---
+- launchApp
+- tapOn: "Enter your email"
+- inputText: "invalidemail"
+- tapOn: "Enter your password"
+- inputText: "password123"
+- tapOn: "Login"
+- assertVisible: "Invalid email format"

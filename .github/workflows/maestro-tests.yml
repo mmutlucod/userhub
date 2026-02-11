@@ -8,7 +8,7 @@ on:
 jobs:
   maestro:
     name: Run Maestro Flows
-    runs-on: macos-14  # ← macos-latest yerine macos-14
+    runs-on: macos-14
     
     steps:
     - name: Checkout Code
@@ -21,8 +21,11 @@ jobs:
         git config core.autocrlf false
         git config core.eol lf
     
-    - name: Select Xcode 15.0.1
-      run: sudo xcode-select -s /Applications/Xcode_15.0.1.app  # ← 15.0 yerine 15.0.1
+    - name: List Available Xcode Versions
+      run: ls /Applications/ | grep Xcode
+    
+    - name: Select Xcode 16
+      run: sudo xcode-select -s /Applications/Xcode_16.app
     
     - name: Show Xcode Version
       run: xcodebuild -version

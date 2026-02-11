@@ -1,5 +1,4 @@
 name: iOS Tests
-
 on:
   push:
     branches: [ main ]
@@ -12,13 +11,11 @@ jobs:
     runs-on: macos-latest
     
     steps:
-    - name: Upload Test Results
-      if: failure()
-      uses: actions/upload-artifact@v4
-      with:
-        name: test-results
-        path: TestResults
-
+    # ❌ SORUN 1: Checkout eksik!
+    - name: Checkout Code
+      uses: actions/checkout@v4
+    
+    # ❌ SORUN 2: Adımlar yanlış sırada (Upload en başta)
     - name: Select Xcode Version
       run: sudo xcode-select -s /Applications/Xcode_15.0.app
     
@@ -38,9 +35,10 @@ jobs:
           -only-testing:userhubUITests \
           -resultBundlePath TestResults
     
+    # ✅ DÜZELTİLDİ: v4 kullan ve sadece bir kere tanımla
     - name: Upload Test Results
       if: failure()
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: test-results
         path: TestResults

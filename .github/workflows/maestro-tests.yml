@@ -13,6 +13,13 @@ jobs:
     steps:
     - name: Checkout Code
       uses: actions/checkout@v4
+      with:
+        lfs: false
+    
+    - name: Configure Git
+      run: |
+        git config core.autocrlf false
+        git config core.eol lf
     
     - name: Setup Xcode
       run: sudo xcode-select -s /Applications/Xcode_15.0.app
@@ -35,10 +42,10 @@ jobs:
     - name: Run Maestro Tests
       run: maestro test .maestro/flows/
     
-    # ✅ DÜZELTİLDİ: v3 -> v4
     - name: Upload Screenshots
       if: failure()
       uses: actions/upload-artifact@v4
       with:
-        name: maestro-screenshots
+        name: maestro-screenshots-${{ github.run_number }}
         path: ~/.maestro/tests/**/*.png
+        if-no-files-found: ignore

@@ -29,7 +29,7 @@ jobs:
     - name: Install Maestro
       run: |
         brew tap mobile-dev-inc/tap
-        brew install maestro
+        brew install --formula maestro
     
     - name: Boot Any iOS Simulator
       run: |

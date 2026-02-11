@@ -1,5 +1,4 @@
 name: iOS Tests
-
 on:
   push:
     branches: [ main ]
@@ -9,18 +8,17 @@ on:
 jobs:
   test:
     name: Run iOS Tests
-    runs-on: macos-latest
+    runs-on: macos-14
     
     steps:
-    - name: Upload Test Results
-      if: failure()
-      uses: actions/upload-artifact@v4
-      with:
-        name: test-results
-        path: TestResults
-
-    - name: Select Xcode Version
-      run: sudo xcode-select -s /Applications/Xcode_15.0.app
+    - name: Checkout Code
+      uses: actions/checkout@v4
+    
+    - name: Select Xcode 15.0.1
+      run: sudo xcode-select -s /Applications/Xcode_15.0.1.app
+    
+    - name: Show Xcode Version
+      run: xcodebuild -version
     
     - name: Run Unit Tests
       run: |
@@ -39,8 +37,9 @@ jobs:
           -resultBundlePath TestResults
     
     - name: Upload Test Results
-      if: failure()
-      uses: actions/upload-artifact@v3
+      if: always()
+      uses: actions/upload-artifact@v4
       with:
-        name: test-results
+        name: test-results-${{ github.run_number }}
         path: TestResults
+        if-no-files-found: warn

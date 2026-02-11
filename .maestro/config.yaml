@@ -11,7 +11,7 @@ appId: tesr.com.userhub
 
 config.yaml
 yaml
-appId: com.yourdomain.userhub
+appId: tesr.com.userhub
 
 platform: ios
 

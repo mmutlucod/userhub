@@ -31,7 +31,7 @@ jobs:
       run: |
         xcodebuild test \
           -scheme userhub \
-          -destination 'platform=iOS Simulator,name=iPhone 15,OS=17.0' \
+          -destination 'platform=iOS Simulator,name=iPhone 16'
           -only-testing:userhubTests \
           -resultBundlePath TestResults
     
@@ -39,7 +39,7 @@ jobs:
       run: |
         xcodebuild test \
           -scheme userhub \
-          -destination 'platform=iOS Simulator,name=iPhone 15,OS=17.0' \
+          -destination 'platform=iOS Simulator,name=iPhone 16'
           -only-testing:userhubUITests \
           -resultBundlePath TestResults
     

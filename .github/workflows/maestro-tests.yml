@@ -33,8 +33,8 @@ jobs:
     
     - name: Boot Any iOS Simulator
       run: |
-        FIRST_SIM=$(xcrun simctl list devices available | grep "iPhone" | grep "iOS" | head -1 | grep -oE '[A-Z0-9-]{36}')
-        xcrun simctl boot "$FIRST_SIM" || true
+        # Simply boot any available iPhone
+        xcrun simctl boot "iPhone 15" || xcrun simctl boot "iPhone 14" || true
         sleep 10
     
     - name: Run Maestro Tests

@@ -1,5 +1,5 @@
 # Xcode project files
-*.pbxproj text eol=lf merge=union
+*.pbxproj text merge=union
 *.xcworkspacedata text eol=lf
 *.xcscheme text eol=lf
 

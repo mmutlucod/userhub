@@ -1,0 +1,23 @@
+# Xcode project files
+*.pbxproj text eol=lf merge=union
+*.xcworkspacedata text eol=lf
+*.xcscheme text eol=lf
+
+# Maestro config files
+*.yaml text eol=lf
+
+# Swift files
+*.swift text eol=lf
+
+# General text files
+*.md text eol=lf
+*.txt text eol=lf
+*.json text eol=lf
+
+# Binary files
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.pdf binary
+*.xcassets binary

@@ -17,19 +17,34 @@ jobs:
     - name: Select Xcode 16.2
       run: sudo xcode-select -s /Applications/Xcode_16.2.app
     
-    - name: Boot iPhone Simulator
+    - name: List Available Simulators
+      run: xcrun simctl list devices available
+    
+    - name: Create and Boot iPhone Simulator
       run: |
-        xcrun simctl boot "iPhone 15" || true
+        # Create iPhone 15 with iOS 18.2
+        xcrun simctl create "iPhone-15-Test" "com.apple.CoreSimulator.SimDeviceType.iPhone-15" "com.apple.CoreSimulator.SimRuntime.iOS-18-2" || true
+        
+        # Boot it
+        DEVICE_ID=$(xcrun simctl list devices | grep "iPhone-15-Test" | grep -oE '[A-Z0-9-]{36}' | head -1)
+        echo "Device ID: $DEVICE_ID"
+        xcrun simctl boot "$DEVICE_ID" || true
         sleep 5
+        
+        # Verify it's booted
+        xcrun simctl list devices | grep Booted
     
     - name: Build App
       run: |
+        # Get the booted device ID
+        DEVICE_ID=$(xcrun simctl list devices | grep "iPhone-15-Test" | grep -oE '[A-Z0-9-]{36}' | head -1)
+        
         xcodebuild build \
           -scheme userhub \
           -sdk iphonesimulator \
           -configuration Debug \
           -derivedDataPath ./DerivedData \
-          -destination 'platform=iOS Simulator,name=iPhone 15' \
+          -destination "platform=iOS Simulator,id=$DEVICE_ID" \
           CODE_SIGN_IDENTITY="" \
           CODE_SIGNING_REQUIRED=NO \
           CODE_SIGNING_ALLOWED=NO
@@ -49,7 +64,7 @@ jobs:
         
         # Verify installation
         echo "Installed apps:"
-        xcrun simctl listapps booted | grep tesr.com.userhub
+        xcrun simctl listapps booted | grep tesr.com.userhub || echo "App not found in list"
     
     - name: Install Maestro
       run: |

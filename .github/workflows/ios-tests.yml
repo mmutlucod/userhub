@@ -13,6 +13,13 @@ jobs:
     steps:
     - name: Checkout Code
       uses: actions/checkout@v4
+      with:
+        lfs: false
+    
+    - name: Configure Git
+      run: |
+        git config core.autocrlf false
+        git config core.eol lf
     
     - name: Select Xcode 15.0.1
       run: sudo xcode-select -s /Applications/Xcode_15.0.1.app

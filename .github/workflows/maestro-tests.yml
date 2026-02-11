@@ -26,32 +26,31 @@ jobs:
     - name: Show Xcode Version
       run: xcodebuild -version
     
-    - name: List Available Simulators
-      run: xcrun simctl list devices available
-    
-    - name: Install iOS 18 Simulator Runtime
-      run: |
-        sudo xcodebuild -downloadPlatform iOS
-        xcrun simctl list runtimes
+    - name: Install iOS Simulator Runtime
+      run: sudo xcodebuild -downloadPlatform iOS
     
     - name: Create iPhone 16 Simulator
+      id: create_sim
       run: |
-        xcrun simctl create "iPhone 16" "com.apple.CoreSimulator.SimDeviceType.iPhone-16" "com.apple.CoreSimulator.SimRuntime.iOS-18-2"
+        SIM_ID=$(xcrun simctl create "iPhone 16" "com.apple.CoreSimulator.SimDeviceType.iPhone-16" "com.apple.CoreSimulator.SimRuntime.iOS-18-2")
+        echo "simulator_id=$SIM_ID" >> $GITHUB_OUTPUT
+        echo "Created simulator: $SIM_ID"
+    
+    - name: Boot Simulator
+      run: |
+        xcrun simctl boot "${{ steps.create_sim.outputs.simulator_id }}"
+        sleep 10
     
     - name: Build App
       run: |
         xcodebuild build-for-testing \
           -scheme userhub \
-          -destination 'platform=iOS Simulator,name=iPhone 16'
+          -destination "platform=iOS Simulator,id=${{ steps.create_sim.outputs.simulator_id }}"
     
     - name: Install Maestro
       run: |
         brew tap mobile-dev-inc/tap
         brew install maestro
-    
-    - name: Start Simulator
-      run: |
-        xcrun simctl boot "iPhone 16" || true
     
     - name: Run Maestro Tests
       run: maestro test .maestro/flows/

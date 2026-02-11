@@ -9,7 +9,7 @@ appId: tesr.com.userhub
 
 - assertVisible: "Password must be at least 6 characters"
 
-config.yaml (Maestro Konfigürasyonu)
+config.yaml
 yaml
 appId: com.yourdomain.userhub
 

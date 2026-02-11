@@ -38,7 +38,9 @@ jobs:
         sleep 10
     
     - name: Run Maestro Tests
-      run: maestro test .maestro/flows/
+      run: |
+        ls -la .maestro/flows/
+        maestro test .maestro/flows/
     
     - name: Upload Screenshots
       if: failure()

@@ -17,34 +17,37 @@ jobs:
     - name: Select Xcode 16.2
       run: sudo xcode-select -s /Applications/Xcode_16.2.app
     
-    - name: List Available Simulators
-      run: xcrun simctl list devices available
-    
-    - name: Create and Boot iPhone Simulator
+    - name: Download and Install iOS 18.2 Runtime
       run: |
-        # Create iPhone 15 with iOS 18.2
-        xcrun simctl create "iPhone-15-Test" "com.apple.CoreSimulator.SimDeviceType.iPhone-15" "com.apple.CoreSimulator.SimRuntime.iOS-18-2" || true
-        
-        # Boot it
-        DEVICE_ID=$(xcrun simctl list devices | grep "iPhone-15-Test" | grep -oE '[A-Z0-9-]{36}' | head -1)
-        echo "Device ID: $DEVICE_ID"
-        xcrun simctl boot "$DEVICE_ID" || true
-        sleep 5
-        
-        # Verify it's booted
-        xcrun simctl list devices | grep Booted
+        sudo xcodebuild -downloadPlatform iOS
+        sudo xcodebuild -runFirstLaunch
+        sleep 30
+    
+    - name: List Available Runtimes
+      run: xcrun simctl list runtimes
+    
+    - name: Create iPhone 15 Simulator
+      run: |
+        xcrun simctl create "iPhone-15-Maestro" "iPhone 15" "iOS18.2"
+        xcrun simctl list devices
+    
+    - name: Boot Simulator
+      run: |
+        DEVICE_ID=$(xcrun simctl list devices | grep "iPhone-15-Maestro" | grep -oE '[A-Z0-9-]{36}' | head -1)
+        echo "Booting device: $DEVICE_ID"
+        xcrun simctl boot "$DEVICE_ID"
+        sleep 10
     
     - name: Build App
       run: |
-        # Get the booted device ID
-        DEVICE_ID=$(xcrun simctl list devices | grep "iPhone-15-Test" | grep -oE '[A-Z0-9-]{36}' | head -1)
+        DEVICE_ID=$(xcrun simctl list devices | grep "iPhone-15-Maestro" | grep -oE '[A-Z0-9-]{36}' | head -1)
         
         xcodebuild build \
           -scheme userhub \
           -sdk iphonesimulator \
           -configuration Debug \
           -derivedDataPath ./DerivedData \
-          -destination "platform=iOS Simulator,id=$DEVICE_ID" \
+          -destination "id=$DEVICE_ID" \
           CODE_SIGN_IDENTITY="" \
           CODE_SIGNING_REQUIRED=NO \
           CODE_SIGNING_ALLOWED=NO
@@ -54,17 +57,16 @@ jobs:
         APP_PATH=$(find ./DerivedData/Build/Products/Debug-iphonesimulator -name "*.app" -type d | head -1)
         
         if [ -z "$APP_PATH" ]; then
-          echo "Error: App not found!"
-          find ./DerivedData -name "*.app" -type d
+          echo "❌ App bulunamadı!"
           exit 1
         fi
         
-        echo "Installing app from: $APP_PATH"
+        echo "✅ App yükleniyor: $APP_PATH"
         xcrun simctl install booted "$APP_PATH"
         
-        # Verify installation
-        echo "Installed apps:"
-        xcrun simctl listapps booted | grep tesr.com.userhub || echo "App not found in list"
+        echo "✅ App yüklendi"
+        xcrun simctl launch booted tesr.com.userhub
+        sleep 2
     
     - name: Install Maestro
       run: |

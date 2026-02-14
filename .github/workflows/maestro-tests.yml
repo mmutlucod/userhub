@@ -21,37 +21,21 @@ jobs:
         sudo xcode-select -s /Applications/Xcode_16.2.app
         xcodebuild -version
     
-    - name: List Available Devices
+    - name: Boot iPhone 16 Simulator
       run: |
-        echo "=== Available Simulators ==="
-        xcrun simctl list devices available
-        echo ""
-        echo "=== Runtimes ==="
-        xcrun simctl list runtimes
-    
-    - name: Use iPhone 16 with iOS 18.1
-      run: |
-        # iOS 18.1 simülatörü kullan (bu kesin var)
-        DEVICE_ID=$(xcrun simctl list devices available | grep "iPhone 16 " | grep "18.1" | head -1 | grep -oE '[A-Z0-9-]{36}')
+        # iPhone 16 with iOS 18.1 - ID'yi direkt kullan
+        DEVICE_ID="FEBBF49F-2E5D-467B-BF04-700DA3C1D2DC"
         
-        if [ -z "$DEVICE_ID" ]; then
-          echo "❌ iPhone 16 not found, using first available iPhone"
-          DEVICE_ID=$(xcrun simctl list devices available | grep "iPhone" | head -1 | grep -oE '[A-Z0-9-]{36}')
-        fi
-        
-        echo "✅ Selected Device: $DEVICE_ID"
-        
-        # Boot simulator
+        echo "✅ Using device: $DEVICE_ID"
         xcrun simctl boot "$DEVICE_ID"
         sleep 15
         
-        # Verify boot
+        # Verify it's booted
         xcrun simctl list devices | grep "$DEVICE_ID"
         
-        # Save for next steps
         echo "SIMULATOR_ID=$DEVICE_ID" >> $GITHUB_ENV
     
-    - name: Build App for Simulator
+    - name: Build App
       run: |
         xcodebuild build \
           -scheme userhub \
@@ -61,39 +45,27 @@ jobs:
           -derivedDataPath ./DerivedData \
           CODE_SIGN_IDENTITY="" \
           CODE_SIGNING_REQUIRED=NO \
-          CODE_SIGNING_ALLOWED=NO \
-          | tee xcodebuild.log
+          CODE_SIGNING_ALLOWED=NO
     
     - name: Install App
       run: |
-        # Find app
         APP_PATH=$(find ./DerivedData/Build/Products -name "*.app" -type d | head -1)
         
         if [ -z "$APP_PATH" ]; then
           echo "❌ App not found"
-          echo "Searching in DerivedData:"
-          find ./DerivedData -type d -name "*.app"
+          find ./DerivedData -name "*.app" -type d
           exit 1
         fi
         
-        echo "✅ Found app: $APP_PATH"
-        
-        # Install to booted simulator
+        echo "✅ Installing: $APP_PATH"
         xcrun simctl install "$SIMULATOR_ID" "$APP_PATH"
-        
-        # Launch to verify
         xcrun simctl launch "$SIMULATOR_ID" tesr.com.userhub
         sleep 3
-        
-        echo "✅ App installed and launched successfully"
     
     - name: Install Maestro
       run: |
         curl -Ls "https://get.maestro.mobile.dev" | bash
         echo "$HOME/.maestro/bin" >> $GITHUB_PATH
-    
-    - name: Verify Maestro
-      run: maestro --version
     
     - name: Run Maestro Tests
       run: |
@@ -101,14 +73,12 @@ jobs:
         maestro test .maestro/flows/
       continue-on-error: true
     
-    - name: Upload Test Results
+    - name: Upload Results
       if: always()
       uses: actions/upload-artifact@v4
       with:
         name: maestro-results
-        path: |
-          ~/.maestro/tests/**/*.png
-          xcodebuild.log
+        path: ~/.maestro/tests/**/*.png
         if-no-files-found: ignore
     
     - name: Cleanup

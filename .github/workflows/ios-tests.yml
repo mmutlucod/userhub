@@ -23,31 +23,39 @@ jobs:
       run: |
         sudo xcodebuild -downloadPlatform iOS
         sudo xcodebuild -runFirstLaunch
+        sleep 30
     
-    - name: Wait for Runtime Installation
-      run: sleep 30
-    
-    - name: List Available Destinations
+    - name: Boot Simulator
       run: |
-        xcodebuild test -scheme userhub -showdestinations
+        DEVICE_ID="FEBBF49F-2E5D-467B-BF04-700DA3C1D2DC"
+        xcrun simctl boot "$DEVICE_ID"
+        sleep 15
+        echo "SIMULATOR_ID=$DEVICE_ID" >> $GITHUB_ENV
+    
+    - name: Build for Testing
+      run: |
+        xcodebuild build-for-testing \
+          -scheme userhub \
+          -sdk iphonesimulator \
+          -destination "generic/platform=iOS Simulator" \
+          -derivedDataPath ./DerivedData \
+          IPHONEOS_DEPLOYMENT_TARGET=16.0
     
     - name: Run Unit Tests
       run: |
-        xcodebuild test \
-          -scheme userhub \
-          -destination "platform=iOS Simulator,name=iPhone 16" \
+        xcodebuild test-without-building \
+          -xctestrun $(find ./DerivedData/Build/Products -name "*.xctestrun") \
+          -destination "platform=iOS Simulator,id=$SIMULATOR_ID" \
           -only-testing:userhubTests \
-          -resultBundlePath TestResults/UnitTests \
-          IPHONEOS_DEPLOYMENT_TARGET=16.0
+          -resultBundlePath TestResults/UnitTests
     
     - name: Run UI Tests
       run: |
-        xcodebuild test \
-          -scheme userhub \
-          -destination "platform=iOS Simulator,name=iPhone 16" \
+        xcodebuild test-without-building \
+          -xctestrun $(find ./DerivedData/Build/Products -name "*.xctestrun") \
+          -destination "platform=iOS Simulator,id=$SIMULATOR_ID" \
           -only-testing:userhubUITests \
-          -resultBundlePath TestResults/UITests \
-          IPHONEOS_DEPLOYMENT_TARGET=16.0
+          -resultBundlePath TestResults/UITests
     
     - name: Upload Test Results
       if: always()
@@ -56,3 +64,7 @@ jobs:
         name: test-results-${{ github.run_number }}
         path: TestResults/
         if-no-files-found: warn
+    
+    - name: Cleanup
+      if: always()
+      run: xcrun simctl shutdown "$SIMULATOR_ID" || true

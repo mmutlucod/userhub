@@ -23,14 +23,14 @@ jobs:
       run: |
         DEVICE_ID="FEBBF49F-2E5D-467B-BF04-700DA3C1D2DC"
         xcrun simctl boot "$DEVICE_ID"
-        sleep 15
+        sleep 20
         echo "SIMULATOR_ID=$DEVICE_ID" >> $GITHUB_ENV
     
     - name: Run Unit Tests
       run: |
         xcodebuild test \
           -scheme userhub \
-          -destination "platform=iOS Simulator,id=$SIMULATOR_ID" \
+          -destination "platform=iOS Simulator,name=iPhone 16,OS=18.1" \
           -only-testing:userhubTests \
           -resultBundlePath TestResults/UnitTests \
           IPHONEOS_DEPLOYMENT_TARGET=16.0
@@ -39,7 +39,7 @@ jobs:
       run: |
         xcodebuild test \
           -scheme userhub \
-          -destination "platform=iOS Simulator,id=$SIMULATOR_ID" \
+          -destination "platform=iOS Simulator,name=iPhone 16,OS=18.1" \
           -only-testing:userhubUITests \
           -resultBundlePath TestResults/UITests \
           IPHONEOS_DEPLOYMENT_TARGET=16.0

@@ -23,19 +23,14 @@ jobs:
     
     - name: Boot iPhone 16 Simulator
       run: |
-        # iPhone 16 with iOS 18.1 - ID'yi direkt kullan
         DEVICE_ID="FEBBF49F-2E5D-467B-BF04-700DA3C1D2DC"
-        
         echo "✅ Using device: $DEVICE_ID"
         xcrun simctl boot "$DEVICE_ID"
         sleep 15
-        
-        # Verify it's booted
         xcrun simctl list devices | grep "$DEVICE_ID"
-        
         echo "SIMULATOR_ID=$DEVICE_ID" >> $GITHUB_ENV
     
-    - name: Build App
+    - name: Build App with Correct Deployment Target
       run: |
         xcodebuild build \
           -scheme userhub \
@@ -43,6 +38,7 @@ jobs:
           -configuration Debug \
           -destination "generic/platform=iOS Simulator" \
           -derivedDataPath ./DerivedData \
+          IPHONEOS_DEPLOYMENT_TARGET=16.0 \
           CODE_SIGN_IDENTITY="" \
           CODE_SIGNING_REQUIRED=NO \
           CODE_SIGNING_ALLOWED=NO
@@ -53,7 +49,6 @@ jobs:
         
         if [ -z "$APP_PATH" ]; then
           echo "❌ App not found"
-          find ./DerivedData -name "*.app" -type d
           exit 1
         fi
         

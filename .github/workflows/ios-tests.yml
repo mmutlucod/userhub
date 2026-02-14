@@ -1,59 +1,57 @@
 name: iOS Tests
+
 on:
   push:
     branches: [ main ]
   pull_request:
     branches: [ main ]
+
 jobs:
   test:
     name: Run iOS Tests
     runs-on: macos-14
+    timeout-minutes: 60
     
     steps:
     - name: Checkout Code
       uses: actions/checkout@v4
-      with:
-        lfs: false
-    
-    - name: Configure Git
-      run: |
-        git config core.autocrlf false
-        git config core.eol lf
     
     - name: Select Xcode 16.2
       run: sudo xcode-select -s /Applications/Xcode_16.2.app
     
-    - name: Show Xcode Version
-      run: xcodebuild -version
-    
-    - name: Install iOS 18 Simulator Runtime
+    - name: Boot iPhone 16 Simulator
       run: |
-        sudo xcodebuild -downloadPlatform iOS
-    
-    - name: Create iPhone 16 Simulator
-      run: |
-        xcrun simctl create "iPhone 16" "com.apple.CoreSimulator.SimDeviceType.iPhone-16" "com.apple.CoreSimulator.SimRuntime.iOS-18-2"
+        DEVICE_ID="FEBBF49F-2E5D-467B-BF04-700DA3C1D2DC"
+        xcrun simctl boot "$DEVICE_ID"
+        sleep 15
+        echo "SIMULATOR_ID=$DEVICE_ID" >> $GITHUB_ENV
     
     - name: Run Unit Tests
       run: |
         xcodebuild test \
           -scheme userhub \
-          -destination 'platform=iOS Simulator,name=iPhone 16' \
+          -destination "platform=iOS Simulator,id=$SIMULATOR_ID" \
           -only-testing:userhubTests \
-          -resultBundlePath TestResults
+          -resultBundlePath TestResults/UnitTests \
+          IPHONEOS_DEPLOYMENT_TARGET=16.0
     
     - name: Run UI Tests
       run: |
         xcodebuild test \
           -scheme userhub \
-          -destination 'platform=iOS Simulator,name=iPhone 16' \
+          -destination "platform=iOS Simulator,id=$SIMULATOR_ID" \
           -only-testing:userhubUITests \
-          -resultBundlePath TestResults
+          -resultBundlePath TestResults/UITests \
+          IPHONEOS_DEPLOYMENT_TARGET=16.0
     
     - name: Upload Test Results
       if: always()
       uses: actions/upload-artifact@v4
       with:
         name: test-results-${{ github.run_number }}
-        path: TestResults
+        path: TestResults/
         if-no-files-found: warn
+    
+    - name: Cleanup
+      if: always()
+      run: xcrun simctl shutdown "$SIMULATOR_ID" || true

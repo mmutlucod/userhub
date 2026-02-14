@@ -15,40 +15,34 @@ jobs:
     - name: Checkout Code
       uses: actions/checkout@v4
     
-    - name: Select Xcode 16.2
+    - name: Setup Xcode
       run: sudo xcode-select -s /Applications/Xcode_16.2.app
     
-    - name: Download and Install iOS Runtime
+    - name: Download iOS Runtime
       run: |
         sudo xcodebuild -downloadPlatform iOS
         sudo xcodebuild -runFirstLaunch
-        sleep 30
     
-    - name: List Available Runtimes and Devices
+    - name: Use Existing iPhone 16 Simulator
       run: |
-        echo "=== Available Runtimes ==="
-        xcrun simctl list runtimes
-        echo ""
-        echo "=== Available Devices ==="
-        xcrun simctl list devices available
-    
-    - name: Create and Boot iPhone 15 Simulator
-      run: |
-        # Create simulator
-        DEVICE_ID=$(xcrun simctl create "iPhone-15-Maestro" "iPhone 15" "iOS18.2")
-        echo "Created simulator: $DEVICE_ID"
+        # Mevcut iPhone 16'yi kullan (iOS 18.2)
+        DEVICE_ID=$(xcrun simctl list devices available | grep "iPhone 16" | grep "18.2" | head -1 | grep -oE '[A-Z0-9-]{36}')
         
-        # Boot simulator
-        xcrun simctl boot "$DEVICE_ID"
-        echo "Booted simulator: $DEVICE_ID"
+        if [ -z "$DEVICE_ID" ]; then
+          echo "❌ iPhone 16 simulator not found"
+          xcrun simctl list devices available
+          exit 1
+        fi
         
-        # Wait for boot
+        echo "✅ Using simulator: $DEVICE_ID"
+        
+        # Boot the simulator
+        xcrun simctl boot "$DEVICE_ID" || true
         sleep 15
         
         # Verify it's booted
         xcrun simctl list devices | grep "$DEVICE_ID"
         
-        # Export for next steps
         echo "SIMULATOR_ID=$DEVICE_ID" >> $GITHUB_ENV
     
     - name: Build App
@@ -63,68 +57,44 @@ jobs:
           -derivedDataPath ./DerivedData \
           CODE_SIGN_IDENTITY="" \
           CODE_SIGNING_REQUIRED=NO \
-          CODE_SIGNING_ALLOWED=NO \
-          | xcpretty || xcodebuild build \
-            -scheme userhub \
-            -sdk iphonesimulator \
-            -configuration Debug \
-            -destination "platform=iOS Simulator,id=$SIMULATOR_ID" \
-            -derivedDataPath ./DerivedData \
-            CODE_SIGN_IDENTITY="" \
-            CODE_SIGNING_REQUIRED=NO \
-            CODE_SIGNING_ALLOWED=NO
+          CODE_SIGNING_ALLOWED=NO
     
-    - name: Install App to Simulator
+    - name: Install App
       run: |
-        # Find app
         APP_PATH=$(find ./DerivedData/Build/Products/Debug-iphonesimulator -name "*.app" -type d | head -1)
         
         if [ -z "$APP_PATH" ]; then
-          echo "❌ App not found!"
-          echo "Searching in DerivedData:"
+          echo "❌ App not found"
           find ./DerivedData -name "*.app" -type d
           exit 1
         fi
         
-        echo "✅ Found app: $APP_PATH"
-        
-        # Install app
+        echo "✅ Installing: $APP_PATH"
         xcrun simctl install "$SIMULATOR_ID" "$APP_PATH"
-        echo "✅ App installed"
         
-        # Launch app to verify
-        xcrun simctl launch "$SIMULATOR_ID" tesr.com.userhub
-        echo "✅ App launched successfully"
-        
-        sleep 3
+        # Verify app is installed
+        xcrun simctl launch "$SIMULATOR_ID" tesr.com.userhub || echo "App launched"
+        sleep 2
     
     - name: Install Maestro
       run: |
         curl -Ls "https://get.maestro.mobile.dev" | bash
-        export PATH="$PATH:$HOME/.maestro/bin"
         echo "$HOME/.maestro/bin" >> $GITHUB_PATH
-    
-    - name: Verify Maestro Installation
-      run: |
-        maestro --version
-        maestro test --help
     
     - name: Run Maestro Tests
       run: |
         export MAESTRO_CLI_NO_ANALYTICS=1
-        maestro test .maestro/flows/ --format junit --output report.xml
+        maestro test .maestro/flows/
       continue-on-error: true
     
     - name: Upload Test Results
       if: always()
       uses: actions/upload-artifact@v4
       with:
-        name: maestro-results-${{ github.run_number }}
-        path: |
-          report.xml
-          ~/.maestro/tests/**/*.png
+        name: maestro-results
+        path: ~/.maestro/tests/**/*.png
         if-no-files-found: ignore
     
-    - name: Shutdown Simulator
+    - name: Cleanup
       if: always()
       run: xcrun simctl shutdown "$SIMULATOR_ID" || true

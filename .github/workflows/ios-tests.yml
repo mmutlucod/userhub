@@ -19,11 +19,23 @@ jobs:
     - name: Select Xcode 16.2
       run: sudo xcode-select -s /Applications/Xcode_16.2.app
     
+    - name: Download iOS Runtime
+      run: |
+        sudo xcodebuild -downloadPlatform iOS
+        sudo xcodebuild -runFirstLaunch
+    
+    - name: Wait for Runtime Installation
+      run: sleep 30
+    
+    - name: List Available Destinations
+      run: |
+        xcodebuild test -scheme userhub -showdestinations
+    
     - name: Run Unit Tests
       run: |
         xcodebuild test \
           -scheme userhub \
-          -destination "platform=iOS Simulator,name=iPhone 16,OS=latest" \
+          -destination "platform=iOS Simulator,name=iPhone 16" \
           -only-testing:userhubTests \
           -resultBundlePath TestResults/UnitTests \
           IPHONEOS_DEPLOYMENT_TARGET=16.0
@@ -32,7 +44,7 @@ jobs:
       run: |
         xcodebuild test \
           -scheme userhub \
-          -destination "platform=iOS Simulator,name=iPhone 16,OS=latest" \
+          -destination "platform=iOS Simulator,name=iPhone 16" \
           -only-testing:userhubUITests \
           -resultBundlePath TestResults/UITests \
           IPHONEOS_DEPLOYMENT_TARGET=16.0
